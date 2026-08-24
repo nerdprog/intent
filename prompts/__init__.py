@@ -1,0 +1,1 @@
+"""StudyCrafter prompts package."""
