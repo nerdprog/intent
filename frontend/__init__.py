@@ -1,0 +1,1 @@
+# StudyCrafter Frontend Package

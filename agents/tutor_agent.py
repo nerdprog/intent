@@ -167,8 +167,11 @@ class TutorAgent:
         ]
 
         for turn in self._trim_history(chat_history):
-            role = "user" if turn["role"] == "user" else "model"
-            history.append({"role": role, "parts": [turn["content"]]})
+            content = (turn.get("content") or "").strip()
+            if not content:
+                continue
+            role = "user" if turn.get("role") == "user" else "model"
+            history.append({"role": role, "parts": [content]})
 
         chat = model.start_chat(history=history)
         response = chat.send_message(

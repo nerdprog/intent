@@ -1,0 +1,118 @@
+{
+  "name": "StudyCrafter - Multi-Agent Aptitude Tutor",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "studycrafter",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "0cbf5378-c8d8-4149-893b-809c56fbfd9b",
+      "name": "01 - Receive Student Message",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [0, 912],
+      "webhookId": "c569461a-972e-4475-a346-db6ee078be3d"
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.first().json || {};\nconst body = item.body ? item.body : item;\nconst message = (body.message || '').toString().trim();\nconst hasMessage = message.length > 0;\n\nreturn [{ json: {\n  has_message: hasMessage,\n  student_id: body.student_id || 'student_001',\n  message: message,\n  topic: body.topic || null,\n  mastery: (body.mastery !== undefined && body.mastery !== null && body.mastery !== '') ? Number(body.mastery) : null,\n  answer: body.answer || null,\n  correct_answer: body.correct_answer || null,\n  question_id: body.question_id || null,\n  raw_body: body,\n} }];"
+      },
+      "id": "606e9964-7614-4f87-af9c-ac04ee83c929",
+      "name": "02 - Parse & Validate Message",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [288, 912]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $json.has_message }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "5017dd9b-55c9-4bb5-9b00-63e76e379884",
+      "name": "Has Valid Message?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [640, 912]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Student message: {{ $json.message }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are the PROFILE AGENT for StudyCrafter.\nExtract only information that is explicitly stated in the student message.\nFields: goal (short text), days_remaining (integer), daily_study_minutes (integer).\nIf a value is not clearly stated, set it to null. NEVER invent values.\nReturn only structured JSON."
+        }
+      },
+      "id": "a6b81eae-6a28-439d-95e7-59c6fb678b20",
+      "name": "03 - Profile Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [224, 1248]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Student message: {{ $(\"02 - Parse & Validate Message\").item.json.message }}\nExtracted profile: {{ JSON.stringify($json.output) }}\nKnown topic: {{ $(\"02 - Parse & Validate Message\").item.json.topic }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are the SUPERVISOR AGENT for StudyCrafter coordinating the multi-agent aptitude tutor.\nAllowed action values: DIAGNOSE, PLAN, TEACH, PRACTICE, ASSESS, PROGRESS, REPLAN.\nResolve context from memory: remember last topic, adjust to follow-ups like 'give me a harder one' or 'explain again'."
+        }
+      },
+      "id": "568744ea-d830-4d45-a0b5-434099eca446",
+      "name": "04 - Supervisor Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [576, 1248]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Deterministic fan-in and state formatting\nconst result = $input.first().json || {};\nconst src = $(\"02 - Parse & Validate Message\").first().json;\nconst profile = ($(\"03 - Profile Agent\").first().json || {}).output || {};\nconst supervisor = ($(\"04 - Supervisor Agent\").first().json || {}).output || {};\nconst action = supervisor.action || \"TEACH\";\nconst topic = supervisor.topic || src.topic || \"Probability\";\n\nlet response;\nif (typeof result.output === \"string\") response = result.output;\nelse if (result.response) response = result.response;\nelse if (result.correct !== undefined) response = \"Answer recorded: \" + (result.correct ? \"correct\" : \"incorrect\") + \" for \" + result.topic + \".\";\nelse if (result.new_mastery !== undefined) response = topic + \" mastery: \" + result.old_mastery + \"% -> \" + result.new_mastery + \"%\";\nelse if (result.diagnostic) response = \"Diagnostic assessment ready.\";\nelse if (result.question) response = result.question;\nelse response = \"Processed action: \" + action + \".\";\n\nreturn [{ json: {\n  ok: true,\n  action,\n  topic,\n  response,\n  agent_output: result,\n  student_state: {\n    student_id: src.student_id,\n    goal: profile.goal || null,\n    days_remaining: profile.days_remaining || null,\n    daily_study_minutes: profile.daily_study_minutes || null,\n    last_action: action,\n    last_topic: topic,\n    last_mastery: result.new_mastery !== undefined ? result.new_mastery : (src.mastery || 40)\n  }\n} }];"
+      },
+      "id": "b1271719-e615-43b1-9727-eb79f6e41ec4",
+      "name": "13 - Update Student State",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1504, 1344]
+    }
+  ],
+  "connections": {
+    "01 - Receive Student Message": {
+      "main": [[{"node": "02 - Parse & Validate Message", "type": "main", "index": 0}]]
+    },
+    "02 - Parse & Validate Message": {
+      "main": [[{"node": "Has Valid Message?", "type": "main", "index": 0}]]
+    },
+    "Has Valid Message?": {
+      "main": [
+        [{"node": "03 - Profile Agent", "type": "main", "index": 0}],
+        []
+      ]
+    },
+    "03 - Profile Agent": {
+      "main": [[{"node": "04 - Supervisor Agent", "type": "main", "index": 0}]]
+    }
+  },
+  "active": true
+}

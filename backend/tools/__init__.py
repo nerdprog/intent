@@ -1,0 +1,1 @@
+"""MCP-ready tool wrappers."""

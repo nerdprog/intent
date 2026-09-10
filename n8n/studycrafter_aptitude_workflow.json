@@ -1,0 +1,90 @@
+{
+  "name": "StudyCrafter Aptitude Tutor",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "studycrafter",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "0cbf5378-c8d8-4149-893b-809c56fbfd9b",
+      "name": "01 - Receive Student Message",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [0, 400],
+      "webhookId": "c569461a-972e-4475-a346-db6ee078be3d"
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.first().json || {};\nconst body = item.body ? item.body : item;\nconst message = (body.message || '').toString().trim();\nreturn [{ json: {\n  student_id: body.student_id || 'anonymous',\n  message: message,\n  topic: body.topic || null,\n  has_message: message.length > 0\n} }];"
+      },
+      "id": "606e9964-7614-4f87-af9c-ac04ee83c929",
+      "name": "02 - Parse Message",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [240, 400]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Student message: {{ $json.message }}\nKnown topic: {{ $json.topic }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are the UNDERSTAND agent for StudyCrafter (Aptitude ONLY).\nExtract: domain (always aptitude), goal, intent (exam_preparation|learn_topic|practice|diagnostic|progress|replan|general), topics from [Percentages, Ratio and Proportion, Averages, Time and Work, Time Speed and Distance, Profit and Loss, Probability], constraints.days_remaining, constraints.daily_hours, context.weak_topics, success_criteria, decomposition.\nASK ONLY WHAT YOU CANNOT INFER. Never invent student IDs or mastery scores.\nReturn JSON only."
+        }
+      },
+      "id": "u-understand-001",
+      "name": "03 - Understand Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [500, 400]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Understand JSON: {{ JSON.stringify($json.output) }}\nMessage: {{ $(\"02 - Parse Message\").item.json.message }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "You are the SUPERVISOR for StudyCrafter Aptitude.\nPick ONE action: PROFILE, DIAGNOSE, PLAN, TEACH, PRACTICE, PROGRESS, REPLAN.\nRules: learn_topic->TEACH; practice/question->PRACTICE; no mastery + exam prep->DIAGNOSE; progress ask->PROGRESS; low mastery after assess is handled in the Python backend evaluator (do not grade here).\nNever expose correct answers. Aptitude domain only."
+        }
+      },
+      "id": "568744ea-d830-4d45-a0b5-434099eca446",
+      "name": "04 - Supervisor Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [760, 400]
+    },
+    {
+      "parameters": {
+        "jsCode": "const src = $(\"02 - Parse Message\").first().json;\nconst understand = ($(\"03 - Understand Agent\").first().json || {}).output || {};\nconst supervisor = ($(\"04 - Supervisor Agent\").first().json || {}).output || {};\nconst action = (supervisor.action || 'TEACH').toUpperCase();\nconst topic = supervisor.topic || (understand.topics && understand.topics[0]) || src.topic || 'Percentages';\nlet response = supervisor.response || understand.goal || ('Next action: ' + action + ' on ' + topic);\nif (typeof response !== 'string') response = JSON.stringify(response);\nreturn [{ json: {\n  ok: true,\n  action,\n  topic,\n  response,\n  state: { mastery: null },\n  student_state: {\n    student_id: src.student_id,\n    goal: understand.goal || null,\n    days_remaining: (understand.constraints || {}).days_remaining || null,\n    daily_study_minutes: (understand.constraints || {}).daily_hours ? Number(understand.constraints.daily_hours) * 60 : null\n  }\n} }];"
+      },
+      "id": "b1271719-e615-43b1-9727-eb79f6e41ec4",
+      "name": "05 - Format Frontend Response",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1020, 400]
+    }
+  ],
+  "connections": {
+    "01 - Receive Student Message": {
+      "main": [[{"node": "02 - Parse Message", "type": "main", "index": 0}]]
+    },
+    "02 - Parse Message": {
+      "main": [[{"node": "03 - Understand Agent", "type": "main", "index": 0}]]
+    },
+    "03 - Understand Agent": {
+      "main": [[{"node": "04 - Supervisor Agent", "type": "main", "index": 0}]]
+    },
+    "04 - Supervisor Agent": {
+      "main": [[{"node": "05 - Format Frontend Response", "type": "main", "index": 0}]]
+    }
+  },
+  "active": false,
+  "settings": { "executionOrder": "v1" },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": false,
+    "instanceId": "studycrafter-aptitude-local"
+  }
+}

@@ -1,0 +1,19 @@
+AVERAGES
+Concept: The average (arithmetic mean) is the sum of all observations divided by the total number of observations. Average = Sum / Count.
+Key formulas:
+- Sum of items = Average * Number of items
+- When a new item of value V is added: New Average = (Old Sum + V) / (N + 1)
+- When an item is replaced: Value of new item = Value of replaced item + (Change in Average * N)
+- Weighted Average = (w1*x1 + w2*x2 + ... + wn*xn) / (w1 + w2 + ... + wn)
+- Average speed for equal distance with speeds x and y = (2 * x * y) / (x + y)
+
+Worked example:
+The average age of 5 students is 18. Four students are 15, 17, 19, and 20. Find the age of the fifth student.
+Sum of 5 students = 5 * 18 = 90.
+Sum of 4 students = 15 + 17 + 19 + 20 = 71.
+Fifth student = 90 - 71 = 19 years.
+
+Practice questions:
+1. Find the average of the first 5 natural numbers (1, 2, 3, 4, 5). (Answer: 3)
+2. Average of 10, 20, 30, 40, 50? (Answer: 30)
+3. A student scored 80, 85, and 90 on tests weighted 20%, 30%, 50%. What is the weighted average? (Answer: 86.5)

@@ -1,0 +1,20 @@
+RATIO AND PROPORTION
+Concept: A ratio a:b compares two quantities of the same kind. A proportion states that two ratios are equal: a:b = c:d, which means a * d = b * c (product of extremes = product of means).
+Key formulas:
+- Dividing quantity T in ratio a:b: Part 1 = (a / (a + b)) * T, Part 2 = (b / (a + b)) * T.
+- Compounding ratios: Compounded ratio of a:b and c:d is (a*c):(b*d).
+- Duplicate ratio: a^2 : b^2. Sub-duplicate ratio: sqrt(a) : sqrt(b).
+- If a:b and b:c are given: Multiply to make the common term 'b' equal to find a:b:c.
+- Invertendo: If a/b = c/d, then b/a = d/c.
+- Alternando: If a/b = c/d, then a/c = b/d.
+
+Worked example:
+Divide $5,000 between A and B in the ratio 2:3.
+Total parts = 2 + 3 = 5.
+A's share = (2/5) * 5000 = $2,000.
+B's share = (3/5) * 5000 = $3,000.
+
+Practice questions:
+1. If 3:5 = x:20, find x. (Answer: x = 12)
+2. Divide $900 in the ratio 4:5. (Answer: $400 and $500)
+3. Two mixtures of milk and water in ratios 3:1 and 2:3 are mixed equally. What is the ratio in the mixture? (Answer: 23:17)

@@ -1,0 +1,24 @@
+PROFIT AND LOSS
+Concept: Cost Price (CP) is the purchase cost. Selling Price (SP) is the sale price. Profit occurs when SP > CP. Loss occurs when CP > SP.
+Key formulas:
+- Profit = SP - CP (when SP > CP)
+- Loss = CP - SP (when CP > SP)
+- Profit Percentage = (Profit / CP) * 100
+- Loss Percentage = (Loss / CP) * 100
+- Selling Price from Profit%: SP = CP * (1 + Profit% / 100)
+- Selling Price from Loss%: SP = CP * (1 - Loss% / 100)
+- Marked Price (MP) and Discount:
+  - Discount = MP - SP
+  - Discount% = (Discount / MP) * 100
+  - SP = MP * (1 - Discount% / 100)
+- False weights: Profit% = ((True Weight - False Weight) / False Weight) * 100
+
+Worked example:
+An article bought for $500 is sold for $600. Find the profit and profit percentage.
+Profit = 600 - 500 = $100.
+Profit% = (100 / 500) * 100 = 20%.
+
+Practice questions:
+1. An item bought for $200 is sold for $150. Find the Loss%. (Answer: 25%)
+2. CP = $800, Profit% = 10%. Find SP. (Answer: $880)
+3. An item with marked price $250 has a 12% discount. What is the selling price? (Answer: $220)

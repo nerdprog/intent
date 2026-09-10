@@ -1,193 +1,171 @@
-# StudyCrafter — Phase 1
+# StudyCrafter — Multi-Agent Personalized Aptitude Tutor
 
-**StudyCrafter** is an Agentic AI-based personalized aptitude learning system. Phase 1 is a Streamlit chatbot that demonstrates basic agentic tutoring behavior — the AI understands student intent, decides what kind of help to provide, and responds accordingly.
+**StudyCrafter** is an Agentic AI personalized aptitude tutoring platform designed to help students crack campus placement tests and competitive exams through autonomous multi-agent orchestration, Knowledge Base RAG, per-student conversation memory, interactive MCQ practice, and deterministic mastery tracking.
 
-## Features
+---
 
-- **Personalized tutoring** — adapts explanations to the student's level (Beginner / Intermediate / Advanced)
-- **Context-aware responses** — uses goal, days remaining, and daily study hours when teaching
-- **Agentic decision-making** — internally decides whether to teach, explain, give examples, practice, assess, or revise
-- **13 aptitude topics** — Number System, Percentages, Probability, Time and Work, and more
-- **Session memory** — remembers the full conversation within a session
-- **Clean Streamlit UI** — sidebar profile, context card, and chat interface
+## 🏗️ Architecture Overview
 
-## Technologies
-
-- Python 3.10+
-- Streamlit
-- LLM API — **Groq** (free, default), **Google Gemini** (free), or OpenAI (paid)
-- python-dotenv
-
-## Project Structure
-
-```
-StudyCrafter/
-├── app.py                  # Main Streamlit application
-├── requirements.txt        # Python dependencies
-├── .env.example            # Environment variable template
-├── README.md
-├── agents/
-│   └── tutor_agent.py      # LLM interaction and response generation
-├── prompts/
-│   └── tutor_prompt.py     # System prompt and context builders
-└── utils/
-    ├── session_state.py    # Session state initialization and helpers
-    └── llm_config.py       # LLM provider settings
+```mermaid
+flowchart TD
+    Student["👤 Student"] -->|"Chat / MCQ Answer"| StreamlitUI["🖥️ Streamlit Frontend / Web App"]
+    StreamlitUI -->|"JSON Webhook Request"| Orchestrator["🧠 n8n Webhook / Gateway"]
+    
+    Orchestrator --> ProfileAgent["👤 Profile Agent (Goal & Schedule)"]
+    ProfileAgent --> Supervisor["🧭 Supervisor Agent (Context & Routing)"]
+    
+    Supervisor -->|"DIAGNOSE"| DiagnosticAgent["🩺 Diagnostic Agent"]
+    Supervisor -->|"TEACH"| TutorAgent["👨‍🏫 Tutor Agent (RAG Grounded)"]
+    Supervisor -->|"PRACTICE"| AssessmentAgent["📝 Assessment Agent (MCQ Gen)"]
+    Supervisor -->|"ASSESS"| Evaluator["⚖️ Deterministic Evaluator"]
+    Supervisor -->|"PROGRESS / REPLAN"| Replanner["🔄 Progress & Replanner Agent"]
+    
+    TutorAgent <--> RAG["📚 Aptitude Knowledge Base (RAG)"]
+    AssessmentAgent <--> RAG
+    
+    Evaluator --> ProgressTracker["📈 Progress & Mastery Tracker (+22% / -8%)"]
+    ProgressTracker --> SQLiteState["💾 SQLite State & Memory"]
+    SQLiteState -->|"Updated State & UI Response"| StreamlitUI
 ```
 
-## Installation
+---
 
-1. **Clone or download** this project and open a terminal in the project folder.
+## 🌟 Key Features
 
-2. **Create a virtual environment** (recommended):
+1. **Zero Setup Friction**:
+   - No complex forms or manual configurations.
+   - Student simply opens the app and types naturally: *"I have a placement test in 20 days and want to prepare for aptitude."*
+   - Profile Agent automatically extracts goal, days remaining, and study time.
+   
+2. **Autonomous Supervisor Routing & Memory**:
+   - Resolves follow-ups naturally: *"Give me a harder one"*, *"Explain again"*, *"Another question"* using session context and topic memory.
 
-   ```bash
-   python -m venv venv
+3. **Grounded Tutor RAG Knowledge Base**:
+   - Covers 7 core topics:
+     1. **Percentages**
+     2. **Ratio and Proportion**
+     3. **Averages**
+     4. **Time and Work**
+     5. **Time Speed and Distance**
+     6. **Profit and Loss**
+     7. **Probability**
+   - Adapts teaching explanations based on mastery level (<50% Basic concepts & worked examples; 50-79% Formulas & shortcuts; ≥80% Trap avoidance & advanced tricks).
 
-   # Windows
-   venv\Scripts\activate
+4. **Interactive MCQ Practice with Deterministic Evaluation**:
+   - Assessment Agent generates multiple-choice questions with 4 options (A, B, C, D).
+   - `correct_answer` is maintained internally and **never exposed to the client before grading**.
+   - Student selects an answer and submits: deterministic logic checks `submitted == correct_answer` and provides instant feedback.
 
-   # macOS / Linux
-   source venv/bin/activate
-   ```
+5. **Dynamic Mastery & Adaptive Replanning**:
+   - Correct answer: **+22% Mastery**.
+   - Incorrect answer: **-8% Mastery**.
+   - Classifications: *Weak (<50%)*, *Developing (50-79%)*, *Strong (≥80%)*.
+   - Replanner dynamically steers the student towards weaker areas.
 
-3. **Install dependencies**:
+6. **Dual Frontend Options**:
+   - **Streamlit App** (`streamlit run app.py`): Clean, educational UI with sidebar dashboard, progress cards, chat stream, and MCQ cards.
+   - **Modern Web App** (`python run_web.py`): High-end dark glassmorphism SPA at `http://localhost:3000`.
 
-   ```bash
-   pip install -r requirements.txt
-   ```
+---
 
-4. **Set up your free API key** (no payment method required):
+## 🚀 Quick Start
 
-   ```bash
-   # Copy the example file
-   copy .env.example .env        # Windows
-   cp .env.example .env          # macOS / Linux
-   ```
+### 1. Installation
+```bash
+# Clone repository and navigate to folder
+cd "f:/study crafter"
 
-   Open `.env` and configure a **free** provider:
+# Install dependencies
+pip install -r requirements.txt
+```
 
-   ### Option A — Groq (recommended, free)
+### 2. Configure Environment (.env)
+```bash
+# Copy example configuration
+copy .env.example .env
+```
+Ensure your `.env` contains:
+```ini
+USE_N8N=false
+N8N_WEBHOOK_URL=http://localhost:5678/webhook/studycrafter
+```
 
-   1. Sign up at [console.groq.com/keys](https://console.groq.com/keys)
-   2. Create an API key (no credit card needed)
-   3. Set in `.env`:
+API keys are **optional** for the local Aptitude MVP (Understand, RAG teaching, MCQs, and grading all run in Python).
 
-   ```
-   LLM_PROVIDER=groq
-   GROQ_API_KEY=gsk_your_actual_groq_key_here
-   ```
-
-   ### Option B — Google Gemini (free)
-
-   1. Get a key at [aistudio.google.com/apikey](https://aistudio.google.com/apikey)
-   2. Set in `.env`:
-
-   ```
-   LLM_PROVIDER=gemini
-   GEMINI_API_KEY=your_gemini_key_here
-   ```
-
-   ### Option C — OpenAI (requires billing)
-
-   Only use this if you have OpenAI credits:
-
-   ```
-   LLM_PROVIDER=openai
-   OPENAI_API_KEY=sk-your-actual-key-here
-   ```
-
-## How to Run
-
+### 3. Run Streamlit Application
 ```bash
 python -m streamlit run app.py
 ```
+Open `http://localhost:8501`. The student ID is created automatically — never type it.
 
-If `streamlit` is on your PATH, you can also use:
+### 4. Optional: n8n
+1. Import `n8n/studycrafter_aptitude_workflow.json` (or the original `n8n/studycrafter_workflow.json`).
+2. Activate the workflow. Webhook path: `POST /webhook/studycrafter` (or your cloud URL).
+3. Set `USE_N8N=true` and `N8N_WEBHOOK_URL=...` in `.env`.
+4. Restart Streamlit.
 
-```bash
-streamlit run app.py
+If n8n is down, the app still runs using the local orchestrator.
+
+---
+
+## 📂 Project Structure
+
+```text
+studycrafter/
+├── app.py
+├── frontend/          # Streamlit chat, MCQ, dashboard
+├── backend/
+│   ├── agents/        # Understand, Supervisor, Diagnose, Tutor, Assess, Progress, Replan
+│   ├── tools/         # knowledge, state, assessment, deterministic evaluation
+│   ├── rag/           # ingest + retrieve existing aptitude_knowledge files
+│   ├── skills/        # reusable playbooks
+│   ├── memory/        # SQLite wrapper
+│   ├── models/        # schemas
+│   ├── orchestrator.py
+│   ├── state.py
+│   └── n8n_client.py
+├── data/aptitude_knowledge/   # existing RAG corpus (reused)
+└── n8n/               # workflow exports
 ```
 
-The app opens in your browser (usually at `http://localhost:8501`).
+---
 
-**Windows note:** If you see `'streamlit' is not recognized`, use `python -m streamlit run app.py` instead — Streamlit is installed, but its Scripts folder may not be on your PATH.
+## 💬 Example User Journeys
 
-## Usage
+### 1. Setting Up Context
+- **Student**: *"I have 15 days left for my placement test. I can study 2 hours per day."*
+- **Agent**: Acknowledges goal and sets up adaptive study timeline.
 
-1. Fill in your **Student Profile** in the sidebar (name, goal, days remaining, daily hours, level).
-2. Type a message in the chat input at the bottom.
-3. The AI tutor responds based on your profile and conversation history.
-4. Use **Clear Chat** in the sidebar to start a new conversation without losing your profile.
+### 2. Learning a Concept
+- **Student**: *"Teach me Probability"*
+- **Agent**: Retrieves formulas, concepts, and worked examples from RAG corpus.
 
-## Example Conversations
+### 3. Practice & Grading
+- **Student**: *"Give me a practice question"*
+- **Agent**: Renders interactive MCQ with 4 options.
+- **Student**: Selects Option **B** and clicks **Submit**.
+- **Agent**: Evaluates deterministically, displays feedback, and updates mastery (+22%).
 
-### Setting up context
+### 4. Adaptive Follow-up
+- **Student**: *"Give me a harder one"*
+- **Agent**: Automatically uses remembered topic (*Probability*) and generates higher difficulty problem.
 
-**Student:** I have 10 days left for my placement aptitude test. I can study 2 hours per day.
+### Demo script
+1. `I have an aptitude test in 7 days. I can study 2 hours daily. I am weak in percentages and probability.`
+2. Submit the diagnostic MCQ.
+3. `Explain percentages again.`
+4. `Give me a practice question.`
+5. Submit an answer.
+6. `Show my progress.`
 
-**Agent:** Acknowledges the goal and preparation timeline, may suggest a focused approach given limited time.
+---
 
-### Learning a weak topic
-
-**Student:** I am weak in probability. Teach me.
-
-**Agent:** Provides a beginner-friendly probability explanation with concept, example, and key point — adapted to the student's level and available time.
-
-### Practice
-
-**Student:** Give me a question.
-
-**Agent:** Generates an aptitude question at the appropriate difficulty with options (if MCQ).
-
-### Answer evaluation
-
-**Student:** My answer is B.
-
-**Agent:** Evaluates the answer, explains if incorrect, and continues the learning flow.
-
-### Increasing difficulty
-
-**Student:** Give me a harder question.
-
-**Agent:** Increases difficulty based on the student's level and prior performance in the conversation.
-
-## Supported Aptitude Topics
-
-- Number System
-- Percentages
-- Profit and Loss
-- Ratio and Proportion
-- Averages
-- Time and Work
-- Time, Speed and Distance
-- Simple Interest
-- Compound Interest
-- Probability
-- Permutation and Combination
-- Logical Reasoning
-- Verbal Ability
-
-## Phase 1 Scope
-
-This phase demonstrates:
-
-```
-USER → AGENT UNDERSTANDS INTENT → AGENT DECIDES ACTION → LLM GENERATES RESPONSE → STUDENT CONTINUES
-```
-
-**Not included in Phase 1:** diagnostic tests, mastery tracking, databases, RAG, LangGraph, study-plan generation, authentication, or deployment. These are planned for later phases.
-
-## Troubleshooting
-
-| Issue | Solution |
-|-------|----------|
-| "API key not found" | Create `.env` with `LLM_PROVIDER=groq` and `GROQ_API_KEY=...` |
-| OpenAI "insufficient_quota" | Switch to free Groq or Gemini in `.env` — no payment needed |
-| `'streamlit' is not recognized` | Use `python -m streamlit run app.py` |
-| Empty response | Ensure your message is not blank |
-| Rate limit | Wait a minute and try again (free tiers have limits) |
+## Limitations
+- Local MVP grades from a fixed Aptitude MCQ bank (not LLM-authored questions).
+- RAG is the existing topic `.txt` files (keyword/topic retrieval, not Chroma embeddings).
+- n8n workflow covers Understand + Supervisor routing; Teach/Practice/Evaluate still run in Python for correctness.
+- Mastery starts at 0 until the student answers questions (no fake scores).
+- Aptitude only — no other academic subjects.
 
 ## License
-
 For educational and demonstration purposes.

@@ -1,0 +1,26 @@
+TIME SPEED AND DISTANCE
+Concept: Distance is the product of Speed and Time. When speed increases for a fixed distance, time decreases inversely.
+Key formulas:
+- Distance = Speed * Time
+- Speed = Distance / Time
+- Time = Distance / Speed
+- Conversion:
+  - km/h to m/s: Multiply by 5/18
+  - m/s to km/h: Multiply by 18/5
+- Relative Speed:
+  - Objects moving in opposite directions: Relative Speed = S1 + S2
+  - Objects moving in same direction: Relative Speed = |S1 - S2|
+- Average Speed for equal distances = (2 * S1 * S2) / (S1 + S2)
+- Trains crossing:
+  - Crossing a pole/man: Distance = Length of Train
+  - Crossing a platform/bridge: Distance = Length of Train + Length of Platform
+
+Worked example:
+A car travels 150 km in 3 hours. Find its speed in km/h and m/s.
+Speed = 150 / 3 = 50 km/h.
+In m/s = 50 * (5/18) = 13.89 m/s.
+
+Practice questions:
+1. Convert 72 km/h into m/s. (Answer: 20 m/s)
+2. Distance covered in 2.5 hours at a speed of 40 km/h? (Answer: 100 km)
+3. A train 120m long passes a pole in 6 seconds. Speed of train? (Answer: 20 m/s = 72 km/h)

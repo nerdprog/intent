@@ -1,0 +1,21 @@
+PROBABILITY
+Concept: Probability measures the likelihood of an event occurring, scaled from 0 (impossible event) to 1 (certain event).
+Key formulas:
+- P(Event E) = Number of favorable outcomes / Total number of possible outcomes (n(E) / n(S))
+- Probability of complementary event: P(not E) = 1 - P(E)
+- Range: 0 <= P(E) <= 1
+- For mutually exclusive events (cannot occur simultaneously): P(A or B) = P(A) + P(B)
+- For independent events (occurrence of one does not affect the other): P(A and B) = P(A) * P(B)
+- General Addition Rule: P(A or B) = P(A) + P(B) - P(A and B)
+- Conditional Probability: P(A|B) = P(A and B) / P(B)
+
+Worked example:
+A bag contains 3 red balls and 2 blue balls (total = 5). One ball is drawn at random. What is the probability of getting a red ball?
+Total outcomes n(S) = 3 + 2 = 5.
+Favorable outcomes n(E) = 3.
+P(Red) = 3/5 = 0.6 (60%).
+
+Practice questions:
+1. A fair six-sided die is rolled once. What is the probability of rolling an even number? (Answer: 3/6 = 1/2)
+2. One card is drawn at random from a standard 52-card deck. Probability of drawing a king? (Answer: 4/52 = 1/13)
+3. Two coins are tossed. Probability of getting at least one head? (Answer: 3/4)

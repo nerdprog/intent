@@ -1,0 +1,18 @@
+PERCENTAGES
+Concept: A percentage is a fraction out of 100. x% of N = (x/100) * N.
+Key formulas:
+- Percentage change = ((New Value - Old Value) / Old Value) * 100
+- Increase by x%: Multiply by (1 + x/100)
+- Decrease by x%: Multiply by (1 - x/100)
+- If A is x% more than B, then B is (100x / (100 + x))% less than A.
+- Successive percentage changes a% and b%: Net change = (a + b + (a*b)/100)%
+
+Worked example:
+A shirt originally costs $800 and is discounted by 25%.
+Discount = (25/100) * 800 = $200.
+Final sale price = 800 - 200 = $600.
+
+Practice questions:
+1. What is 15% of 240? (Answer: 36)
+2. If 40% of a number is 120, what is the number? (Answer: 300)
+3. A price rises by 20% and then falls by 10%. What is the net change? (Answer: +8%)
