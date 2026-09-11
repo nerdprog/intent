@@ -1,1 +1,0 @@
-"""StudyCrafter agents package."""
