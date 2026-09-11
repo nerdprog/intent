@@ -17,7 +17,7 @@ load_dotenv()
 
 N8N_WEBHOOK_URL = os.getenv(
     "N8N_WEBHOOK_URL",
-    "https://nivi0706.app.n8n.cloud/webhook/studycrafter",
+    "https://nerdprog.app.n8n.cloud/webhook/studycrafter",
 )
 USE_N8N = os.getenv("USE_N8N", "false").strip().lower() in {"1", "true", "yes"}
 
