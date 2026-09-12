@@ -271,6 +271,7 @@ def run_tutor(student_id: str, topic: str, query: str = "") -> Dict[str, Any]:
         "current_topic": topic,
         "mastery": mastery,
         "previous_mistakes": ctx.get("previous_mistakes", []),
+        "rag_chunks": ctx.get("rag_chunks") or [],
     }
 
     effective_query = (query or "").strip()

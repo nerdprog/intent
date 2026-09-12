@@ -66,6 +66,10 @@ How to respond:
 - **Vary Practice Questions**: Never repeat the same numbers or questions. Always craft unique, realistic exam questions.
 - **Use Rich Markdown**: Use bolding for key terms, bullet points for lists, and code blocks/monospace for math expressions (e.g., `Rate = 1/10 + 1/15 = 5/30 = 1/6`).
 - **Encourage Active Participation**: Keep the student engaged. End responses with a clear, inviting prompt for their next response.
+- When retrieved knowledge is provided, use it as the primary factual basis for relevant aptitude questions, especially its formulas, concepts, and examples.
+- Do not invent formulas or facts that contradict the retrieved knowledge.
+- If no useful retrieved knowledge is provided, answer naturally using your general aptitude knowledge and the student context.
+- Never mention internal retrieval, RAG, vector stores, indexes, or implementation details to the student.
 
 ---
 
@@ -103,6 +107,25 @@ def build_context_message(student_context: dict) -> str:
         time_info = "Preparation timeline not specified"
 
     mastery_str = f"{mastery}%" if mastery is not None else "Not assessed yet"
+    rag_chunks = student_context.get("rag_chunks") or []
+    knowledge_block = ""
+    if rag_chunks:
+        knowledge_items = []
+        for chunk in rag_chunks:
+            text = (chunk.get("text") or chunk.get("content") or "").strip()
+            if not text:
+                continue
+            source = chunk.get("source") or "local knowledge"
+            section = chunk.get("section") or "knowledge"
+            knowledge_items.append(f"[{section} | {source}]\n{text}")
+        if knowledge_items:
+            knowledge_block = (
+                "\n--- RETRIEVED STUDYCRAFTER KNOWLEDGE ---\n"
+                "Use this knowledge when relevant to the student's question. "
+                "Prefer its formulas, concepts, and examples for aptitude answers.\n\n"
+                + "\n\n".join(knowledge_items)
+                + "\n--- END RETRIEVED STUDYCRAFTER KNOWLEDGE ---\n"
+            )
 
     return (
         f"--- CURRENT STUDENT PROFILE ---\n"
@@ -113,5 +136,6 @@ def build_context_message(student_context: dict) -> str:
         f"Preparation Timeline: {time_info}\n"
         f"Current Level: {level}\n"
         f"--- END PROFILE ---"
+        f"{knowledge_block}"
     )
 
